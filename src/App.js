@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { fetchClassData, mockClassTypeData } from "./api/Api";
 import ClassLink from "./components/ClassLink";
 import styles from "./App.module.scss";
@@ -15,15 +15,18 @@ function App() {
   const [parentClassName, setParentClassName] = useState("");
   const [dialogLoading, setDialogLoading] = useState(true);
   const [showDialog, setShowDialog] = React.useState(false);
-
-  useEffect(() => {
+  const fetchedClassData = useCallback(() => {
     const fetchedClassData = async () => {
       setSelectedClass(await fetchClassData(activeClass, activeClassType));
       setDialogLoading(false);
     };
     fetchedClassData();
     setDialogLoading(true);
-  }, [activeClass]);
+  }, [activeClass, activeClassType]);
+
+  useEffect(() => {
+    fetchedClassData();
+  }, [fetchedClassData]);
 
   // Takes a URL to fetch and a boolean if a subclass
   const handleActiveClass = (activeClassUrl, isSubClass) => {
@@ -32,7 +35,7 @@ function App() {
     setActiveClassType(isSubClass ? "subclass" : "class");
     if (isSubClass) {
       const parentClass = mockClassTypeData.allClasses.filter(
-        (parent) => parent.subclass == activeClassUrl
+        (parent) => parent.subclass === activeClassUrl
       )[0].class;
       setParentClassName(parentClass);
     }
