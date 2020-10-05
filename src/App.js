@@ -1,50 +1,110 @@
-import React, { Component } from "react"
-import logo from "./logo.svg"
-import "./App.css"
+import React, { useState, useEffect } from "react";
+import { fetchClassData, mockClassTypeData } from "./api/Api";
+import ClassLink from "./components/ClassLink";
+import styles from "./App.module.scss";
+import { DialogOverlay, DialogContent } from "@reach/dialog";
+import { ReactComponent as Loading } from "./assets/loader.svg";
+import { ReactComponent as Close } from "./assets/close.svg";
+import SpellList from "./components/SpellList";
+import "@reach/dialog/styles.css";
 
-class LambdaDemo extends Component {
-  constructor(props) {
-    super(props)
-    this.state = { loading: false, msg: null }
-  }
+function App() {
+  const [activeClassType, setActiveClassType] = useState("");
+  const [selectedClass, setSelectedClass] = useState("");
+  const [activeClass, setActiveClass] = useState("");
+  const [parentClassName, setParentClassName] = useState("");
+  const [dialogLoading, setDialogLoading] = useState(true);
+  const [showDialog, setShowDialog] = React.useState(false);
 
-  handleClick = api => e => {
-    e.preventDefault()
+  useEffect(() => {
+    const fetchedClassData = async () => {
+      setSelectedClass(await fetchClassData(activeClass, activeClassType));
+      setDialogLoading(false);
+    };
+    fetchedClassData();
+    setDialogLoading(true);
+  }, [activeClass]);
 
-    this.setState({ loading: true })
-    fetch("/.netlify/functions/" + api)
-      .then(response => response.json())
-      .then(json => this.setState({ loading: false, msg: json.msg }))
-  }
+  // Takes a URL to fetch and a boolean if a subclass
+  const handleActiveClass = (activeClassUrl, isSubClass) => {
+    setShowDialog(true);
+    setActiveClass(activeClassUrl);
+    setActiveClassType(isSubClass ? "subclass" : "class");
+    if (isSubClass) {
+      const parentClass = mockClassTypeData.allClasses.filter(
+        (parent) => parent.subclass == activeClassUrl
+      )[0].class;
+      setParentClassName(parentClass);
+    }
+  };
 
-  render() {
-    const { loading, msg } = this.state
+  const handleDialogClose = () => {
+    setShowDialog(false);
+    setSelectedClass("");
+    setActiveClass("");
+    setParentClassName("");
+  };
 
-    return (
-      <p>
-        <button onClick={this.handleClick("hello")}>{loading ? "Loading..." : "Call Lambda"}</button>
-        <button onClick={this.handleClick("async-dadjoke")}>{loading ? "Loading..." : "Call Async Lambda"}</button>
-        <br />
-        <span>{msg}</span>
-      </p>
-    )
-  }
-}
-
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <LambdaDemo />
+  return (
+    <>
+      <div className={styles.app}>
+        <header className={styles.header}>
+          <h1 className={styles.heading}>D&D Spell Finder</h1>
         </header>
+        <div>
+          <DialogOverlay
+            isOpen={showDialog}
+            onDismiss={handleDialogClose}
+            className="Dialog"
+          >
+            <DialogContent aria-label="class-modal">
+              <div className={styles.dialogContent}>
+                {dialogLoading ? (
+                  <div className={styles.loadContain}>
+                    <Loading />
+                  </div>
+                ) : (
+                  selectedClass && (
+                    <>
+                      <h2>{selectedClass.name}</h2>
+                      <span>
+                        <strong>Type: </strong>
+                        <span className={styles.capitalize}>
+                          {activeClassType}
+                        </span>
+                      </span>
+                      <p>{selectedClass.desc}</p>
+                      <SpellList
+                        subClassName={activeClass}
+                        parentClassName={parentClassName}
+                        isClass={activeClassType === "subclass" ? false : true}
+                      />
+                    </>
+                  )
+                )}
+              </div>
+              <button
+                onClick={() => handleDialogClose()}
+                className={styles.closeButton}
+              >
+                <Close />
+              </button>
+            </DialogContent>
+          </DialogOverlay>
+        </div>
+        <div className={styles.articles}>
+          {mockClassTypeData.allClasses.map((data) => (
+            <ClassLink
+              key={data.class}
+              classes={data.class}
+              subClasses={data.subclass}
+              onActive={handleActiveClass}
+            />
+          ))}
+        </div>
       </div>
-    )
-  }
+    </>
+  );
 }
 
-export default App
+export default App;

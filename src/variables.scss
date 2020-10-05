@@ -1,0 +1,24 @@
+$white: #ffffff;
+
+// Breakpoints and media queries
+$sm: 320px;
+$md: 1024px;
+$lg: 1280px;
+
+@mixin small {
+  @media screen and (min-width: $sm) {
+    @content;
+  }
+}
+
+@mixin medium {
+  @media screen and (min-width: $md) {
+    @content;
+  }
+}
+
+@mixin large {
+  @media screen and (min-width: $lg) {
+    @content;
+  }
+}

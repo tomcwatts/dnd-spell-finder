@@ -1,0 +1,20 @@
+@import "../variables.scss";
+
+.capitalize {
+  text-transform: capitalize;
+}
+
+.listHeading {
+  text-align: center;
+}
+
+.spellListContain {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+}
+
+.listContain {
+  width: 100%;
+  max-width: 280px;
+}

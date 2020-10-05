@@ -1,0 +1,52 @@
+@import "../variables.scss";
+
+.card {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  margin: 0;
+  border-bottom: 1px solid rgba(166, 168, 179, 0.12);
+  border-right: 1px solid rgba(166, 168, 179, 0.12);
+  overflow: hidden;
+  background-color: $white;
+  text-align: center;
+
+  @include large {
+    padding: 1rem;
+  }
+}
+
+.classLink {
+  display: inline-block;
+  text-transform: capitalize;
+  color: #333d57;
+  cursor: pointer;
+  &:hover {
+    color: #1c53eb;
+    text-decoration: underline;
+  }
+
+  @include medium {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+  }
+}
+
+.subclassLink {
+  display: inline-block;
+  text-transform: capitalize;
+  font-weight: 400;
+  cursor: pointer;
+  margin-top: 0;
+  color: #40495e;
+  &:hover {
+    color: #1c53eb;
+    text-decoration: underline;
+  }
+}
+
+@supports (display: grid) {
+  .classItem {
+    margin: 0;
+  }
+}
